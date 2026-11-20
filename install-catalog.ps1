@@ -32,9 +32,14 @@ Write-Host "trusted catalog registered"
 
 # 4. Remove the developer (debug) registration of the same add-in to avoid a duplicate
 $Dev = 'HKCU:\Software\Microsoft\Office\16.0\WEF\Developer'
+#    (and its debugger settings, which make PowerPoint show a "WebView debugging" dialog)
 if (Get-ItemProperty -Path $Dev -Name $AddinId -ErrorAction SilentlyContinue) {
     Remove-ItemProperty -Path $Dev -Name $AddinId
     Write-Host "developer registration removed"
+}
+if (Test-Path "$Dev\$AddinId") {
+    Remove-Item -Path "$Dev\$AddinId" -Recurse
+    Write-Host "debugger settings removed"
 }
 
 Write-Host ''

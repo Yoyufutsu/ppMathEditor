@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ppMath 数式エディタ</title>
+  <link rel="stylesheet" href="taskpane.css">
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        packages: { "[+]": ["physics", "mhchem", "braket", "cancel"] },
+      },
+      svg: { fontCache: "none" },
+      startup: { typeset: false },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js" defer></script>
+  <script src="taskpane.js" defer></script>
+</head>
+<body>
+  <header class="bar">
+    <span id="modeBadge" class="badge new">新規</span>
+    <span id="modeText" class="muted">スライド上の数式を選択すると編集できます</span>
+  </header>
+
+  <main>
+    <section>
+      <div class="label-row">
+        <label for="src">LaTeX</label>
+        <span class="muted small">Ctrl+Enter で挿入/更新</span>
+      </div>
+      <textarea id="src" spellcheck="false" rows="5" autofocus placeholder="例: \int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}"></textarea>
+    </section>
+
+    <section>
+      <label>プレビュー</label>
+      <div id="preview" class="preview"></div>
+      <div id="error" class="error" hidden></div>
+    </section>
+
+    <section class="settings">
+      <label class="inline">サイズ <input id="fontSize" type="number" min="6" max="200" step="1" value="24"> pt</label>
+      <label class="inline">色 <input id="color" type="color" value="#000000"></label>
+      <label class="inline"><input id="display" type="checkbox" checked> ディスプレイ数式</label>
+      <label class="inline" title="編集中の数式を、入力が止まったら自動でスライドに反映します"><input id="autoUpdate" type="checkbox" checked> 自動更新</label>
+    </section>
+
+    <section class="actions">
+      <button id="insertBtn" class="primary">スライドに挿入</button>
+      <button id="updateBtn" class="primary" hidden>数式を更新</button>
+      <button id="newBtn" class="ghost">新規</button>
+    </section>
+    <div id="status" class="status muted"></div>
+
+    <details id="listBox" open>
+      <summary>プレゼン内の数式 <button id="refreshBtn" class="ghost small">↻ 更新</button></summary>
+      <ul id="eqList" class="eq-list"></ul>
+    </details>
+
+    <details>
+      <summary>マクロ（\newcommand など）</summary>
+      <textarea id="macros" spellcheck="false" rows="4" placeholder="\newcommand{\R}{\mathbb{R}}&#10;\newcommand{\dd}{\mathrm{d}}"></textarea>
+      <p class="muted small">すべての数式の前に適用されます。</p>
+    </details>
+  </main>
+</body>
+</html>

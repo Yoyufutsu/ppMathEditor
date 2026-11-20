@@ -15,17 +15,21 @@ PowerPoint の作業ウィンドウで LaTeX から数式を作り、スライ�
 - `\newcommand` などのマクロ定義（すべての数式に適用）
 
 ## インストール（1 回だけ）
+共有フォルダー カタログ方式で登録します（再起動しても消えません）。**管理者として開いた PowerShell** で：
 ```powershell
-npm.cmd install
-npm.cmd run register     # manifest.xml を PowerPoint に登録
-npm.cmd run sideload     # アドインを読み込んだ状態で PowerPoint を起動（ボタンが出ないとき）
+cd "C:\Users\minat\Documents\ツール作成\ppMathEditor"
+powershell -ExecutionPolicy Bypass -File .\install-catalog.ps1
 ```
-PowerPoint を再起動すると、**ホーム** タブ右端に「ppMath → 数式エディタ」ボタンが出ます。
-登録を外すときは `npm.cmd run unregister`。
+スクリプトがすること：`%USERPROFILE%\ppMathCatalog` に manifest.xml をコピー → そのフォルダーを自分だけ読み取り可で共有 → Office の「信頼できるアドイン カタログ」に登録 → 開発用（デバッグ）登録を削除。
+
+その後 PowerPoint を再起動し、**ホーム → アドイン → その他のアドイン（個人用アドイン）→ 共有フォルダー → ppMath → 追加**。
+以後は **ホーム** タブ右端に「ppMath → 数式エディタ」ボタンが常に出ます。
+
+削除は同じく管理者 PowerShell で `powershell -ExecutionPolicy Bypass -File .\uninstall-catalog.ps1`。
 
 ## エディタを改良したとき
 `docs/` を編集して GitHub に push すれば、数分で Pages に反映されます（PowerPoint 側の再登録は不要）。
-`manifest.xml` を変えたときだけ `npm.cmd run register` をやり直してください。
+`manifest.xml` を変えたときだけ `install-catalog.ps1` をやり直してください。
 
 ### ローカルで試す（開発用）
 ```powershell

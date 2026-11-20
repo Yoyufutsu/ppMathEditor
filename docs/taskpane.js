@@ -122,6 +122,7 @@ function bindUi() {
     state.latex = els.src.value;
     onContentChanged();
   });
+  setupAutoPair(els.src);
 
   for (const el of [els.fontSize, els.color, els.display]) {
     el.addEventListener("input", () => { savePrefs(); onContentChanged(); });
@@ -141,6 +142,69 @@ function bindUi() {
       commit();
     }
   }, true);
+}
+
+// ---- かっこの自動補完 -----------------------------------------------------------
+// ( [ { を打つと閉じかっこも入れてカーソルを間に置く。文字列を選択中なら囲む。
+// \{ は \} と対にする。閉じかっこの直前で同じ閉じかっこを打つと上書きせず通過し、
+// 空のかっこの間で Backspace を押すと両方消す。
+const PAIRS = { "(": ")", "[": "]", "{": "}" };
+const CLOSERS = new Set(Object.values(PAIRS));
+
+function isEscapedAt(text, i) {
+  // text[i] の直前に連続する \ が奇数個なら、text[i] はエスケープされている
+  let n = 0;
+  for (let j = i - 1; j >= 0 && text[j] === "\\"; j--) n++;
+  return n % 2 === 1;
+}
+
+function insertTextAt(ta, text) {
+  // execCommand ならブラウザの「元に戻す」が効く
+  if (!document.execCommand("insertText", false, text)) {
+    ta.setRangeText(text, ta.selectionStart, ta.selectionEnd, "end");
+    ta.dispatchEvent(new Event("input"));
+  }
+}
+
+function setupAutoPair(ta) {
+  ta.addEventListener("beforeinput", (e) => {
+    if (e.isComposing || e.inputType !== "insertText" || !e.data || e.data.length !== 1) return;
+    const ch = e.data;
+    const v = ta.value;
+    const s = ta.selectionStart;
+    const end = ta.selectionEnd;
+
+    if (PAIRS[ch]) {
+      e.preventDefault();
+      const close = ch === "{" && isEscapedAt(v, s) ? "\\}" : PAIRS[ch];
+      const selected = v.slice(s, end);
+      insertTextAt(ta, ch + selected + close);
+      ta.setSelectionRange(s + 1, s + 1 + selected.length);
+      return;
+    }
+
+    if (CLOSERS.has(ch) && s === end && v[s] === ch && !isEscapedAt(v, s)) {
+      e.preventDefault();
+      ta.setSelectionRange(s + 1, s + 1);
+    }
+  });
+
+  ta.addEventListener("keydown", (e) => {
+    if (e.key !== "Backspace" || e.isComposing || e.ctrlKey || e.altKey) return;
+    const v = ta.value;
+    const s = ta.selectionStart;
+    if (s !== ta.selectionEnd || s === 0) return;
+    const open = v[s - 1];
+    if (!PAIRS[open]) return;
+    const close = open === "{" && isEscapedAt(v, s - 1) ? "\\}" : PAIRS[open];
+    if (v.slice(s, s + close.length) !== close) return;
+    e.preventDefault();
+    ta.setSelectionRange(s - 1, s + close.length);
+    if (!document.execCommand("delete")) {
+      ta.setRangeText("", s - 1, s + close.length, "end");
+      ta.dispatchEvent(new Event("input"));
+    }
+  });
 }
 
 // ---- レンダリング --------------------------------------------------------------

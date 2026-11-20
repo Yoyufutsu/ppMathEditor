@@ -18,6 +18,7 @@ PowerPoint の作業ウィンドウで LaTeX から数式を作り、スライ�
 ```powershell
 npm.cmd install
 npm.cmd run register     # manifest.xml を PowerPoint に登録
+npm.cmd run sideload     # アドインを読み込んだ状態で PowerPoint を起動（ボタンが出ないとき）
 ```
 PowerPoint を再起動すると、**ホーム** タブ右端に「ppMath → 数式エディタ」ボタンが出ます。
 登録を外すときは `npm.cmd run unregister`。

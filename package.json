@@ -9,7 +9,8 @@
     "start": "office-addin-debugging start manifest.dev.xml desktop --app powerpoint",
     "stop": "office-addin-debugging stop manifest.dev.xml",
     "register": "office-addin-dev-settings register manifest.xml",
-    "unregister": "office-addin-dev-settings unregister manifest.xml"
+    "unregister": "office-addin-dev-settings unregister manifest.xml",
+    "sideload": "office-addin-dev-settings sideload manifest.xml desktop --app powerpoint"
   },
   "keywords": [],
   "author": "",
